@@ -22,36 +22,61 @@ mp4 ──ffmpeg──▶ .flac ──FunASR──▶ .txt ──DeepSeek 校准
                                                    └──（可选）要点提炼──▶ html_summary/<章节>.html
 ```
 
-## 快速开始
+## 快速开始（面向非技术用户）
 
-### 1. 安装依赖
+### 第 1 步：获取本工具（只需一次）
+
+在仓库页面点击 **Code → Download ZIP**，解压后把整个文件夹移到你喜欢的位置（如 `Documents/`）。
+
+### 第 2 步：安装依赖（只需一次）
+
+打开 Terminal（终端），输入 `cd ` 后把解压出来的 `mp4-converter` 文件夹**拖进终端窗口**，回车进入。然后复制粘贴下面整行，回车：
 
 ```bash
-brew install ffmpeg                       # 音频提取
-pip3 install funasr torch torchaudio     # ASR（首次运行自动下载约 1.3GB 模型）
-pip3 install openai                      # DeepSeek API
+brew install ffmpeg && pip3 install funasr torch torchaudio openai
 ```
 
-### 2. 设置 API Key
+首次转换时会自动下载语音模型（约 1.3GB），只需等待一次。
+
+### 第 3 步：申请 API Key（只需一次）
+
+到 DeepSeek 开放平台（platform.deepseek.com）注册并创建 API Key，充值少量余额（转换一个视频约 ¥0.12-0.15）。
+
+回到 Terminal，粘贴下面这行，把 `sk-xxx` 换成你的 key 后回车：
 
 ```bash
 export DEEPSEEK_API_KEY="sk-xxx"
 ```
 
-### 3. 运行
+### 第 4 步：标准输入模板
+
+**单个视频** —— 复制模板，把「视频路径」换成你的文件路径（打引号时直接把视频文件拖进终端窗口即可自动填入路径）：
 
 ```bash
-# 单个视频：mp4 → 最终 _verified.html
-python3 scripts/run_pipeline.py --single "path/to/视频.mp4"
+python3 scripts/run_pipeline.py --single "视频路径"
+```
 
-# 批量（推荐，三阶段并行流水线）
-python3 scripts/run_parallel.py --all --root "path/to/你的视频库"
+示例：
 
-# 可选：章节要点提炼（去除暖场/废话/重复，每章节输出一份要点 HTML）
+```bash
+python3 scripts/run_pipeline.py --single "/Users/me/Downloads/课程第1节.mp4"
+```
+
+**整个文件夹（推荐）** —— 把同一门课的视频放进一个文件夹（一门课一个文件夹），运行：
+
+```bash
+python3 scripts/run_parallel.py --all --root "文件夹路径"
+```
+
+**可选：章节要点提炼** —— 把每个章节的转录合并为一份要点列表：
+
+```bash
 python3 scripts/summarize.py --all
 ```
 
-将同一门课/章节的视频放进同一子文件夹，输出会按源文件夹分子目录保存到 `audio/`、`txt/`、`html/`、`html_summary/`。失败记录在 `pipeline_errors.log`，不影响其他文件。
+### 结果在哪里
+
+完成后，在 `mp4-converter` 文件夹内的 `html/课程名/` 目录下，用浏览器打开 `xxx_verified.html` 即可阅读排版好的文章。中断后重新运行会自动跳过已完成的文件，不用担心重复。
 
 ## Prompt 设计
 
